@@ -1,0 +1,84 @@
+name: Exercícios Revisão - EX1
+description: ''
+host: EXCEL
+api_set: {}
+script:
+  content: >
+    aparecer.addEventListener("click", async () => {
+      await Excel.run(async function(context) {
+        let sheet = context.workbook.worksheets.getActiveWorksheet();
+
+        let table = sheet.tables.add("A1:B1", true);
+        table.getHeaderRowRange().values = [["Maior", "Menor"]];
+
+        let lista_numeros = [
+          parseInt(txt1.value),
+          parseInt(txt2.value),
+          parseInt(txt3.value),
+          parseInt(txt4.value),
+          parseInt(txt5.value)
+        ];
+        console.log(lista_numeros);
+
+        // Necessária a conversão para utilizar a função min e max
+        // elas recebem parametros destintos, então é necessario descompactar a lista
+        // outra forma de se usar Math.min(..lista_numeros)
+        let menor = Math.min.apply(Math, lista_numeros);
+        let maior = Math.max.apply(Math, lista_numeros);
+
+        table.rows.add(null, [[maior, menor]]);
+
+        // auto fill
+        table.getRange().format.autofitColumns();
+        table.getRange().format.autofitRows();
+
+        return context.sync();
+      }).catch(function(error) {
+        console.log("Error: " + error);
+        if (error instanceof OfficeExtension.Error) {
+          console.log("Debug info: " + JSON.stringify(error.debugInfo));
+        }
+      });
+    });
+
+
+    // Força somente números nos inputs
+
+    //
+    https://www.geeksforgeeks.org/how-to-force-input-field-to-enter-numbers-only-using-javascript/
+
+    function onlyNumberKey(evt) {
+      // Only ASCII character in that range allowed
+      var ASCIICode = evt.which ? evt.which : evt.keyCode;
+      if (ASCIICode > 31 && (ASCIICode < 48 || ASCIICode > 57)) return false;
+      return true;
+    }
+  language: typescript
+template:
+  content: "<h1>Números</h1>\n<div>\n\t<input id=\"txt1\" placeholder=\"Número 1\" onkeypress=\"return onlyNumberKey(event)\" maxlength=\"2\"></br>\n\t<input id=\"txt2\" placeholder=\"Número 2\" onkeypress=\"return onlyNumberKey(event)\" maxlength=\"2\"></br>\n\t<input id=\"txt3\" placeholder=\"Número 3\" onkeypress=\"return onlyNumberKey(event)\" maxlength=\"2\"></br>\n\t<input id=\"txt4\" placeholder=\"Número 4\" onkeypress=\"return onlyNumberKey(event)\" maxlength=\"2\"></br>\n\t<input id=\"txt5\" placeholder=\"Número 5\" onkeypress=\"return onlyNumberKey(event)\" maxlength=\"2\"></br>\n</div>\n\n<div>\n\t<button id=\"aparecer\">Mostrar</button>\n</div>"
+  language: html
+style:
+  content: |-
+    section.samples {
+        margin-top: 20px;
+    }
+
+    section.samples .ms-Button, section.setup .ms-Button {
+        display: block;
+        margin-bottom: 5px;
+        margin-left: 20px;
+        min-width: 80px;
+    }
+  language: css
+libraries: |
+  https://appsforoffice.microsoft.com/lib/1/hosted/office.js
+  @types/office-js
+
+  office-ui-fabric-js@1.4.0/dist/css/fabric.min.css
+  office-ui-fabric-js@1.4.0/dist/css/fabric.components.min.css
+
+  core-js@2.4.1/client/core.min.js
+  @types/core-js
+
+  jquery@3.1.1
+  @types/jquery@3.3.1
